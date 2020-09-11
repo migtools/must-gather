@@ -57,6 +57,9 @@ for localns in $(/usr/bin/oc get migrationcontrollers.migration.openshift.io --a
   echo "[cluster=host] Gathering prometheus metrics"
   /usr/bin/gather_metrics &
 
+  # Collect memory profile data
+  /usr/bin/gather_pprof ${localns} &
+
   # Waits for gather_crs, gather_logs, gather_metrics running in background
   echo "Waiting for background gather tasks to finish"
   wait

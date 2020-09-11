@@ -28,6 +28,27 @@ make prometheus-run # and prometheus-cleanup when you're done
 ```
 The latest Prometheus data file (prom_data.tar.gz) in current directory/subdirectories is searched by default. Could be specified in ```PROMETHEUS_DUMP_PATH``` environment variable.
 
+#### Analyze mig-controller memory profile
+
+In the must-gather archive, find the `memory-profiles` directory:
+
+```sh
+cd memory-profiles/openshift-migration
+```
+
+Here, you will find memory profile of mig-controller in two formats - a binary and a png file. The binary file `pprof_raw_payload` contains the full heap represention of mig-controller, while the PNG file is a simple graphical representation of memory allocation. 
+
+To analyze the raw binary heap data on your machine, use `go tool pprof`:
+
+```sh
+go tool pprof pprof_raw_payload
+```
+
+This will open an interactive `pprof` terminal. Type `help` in the terminal for more information.
+
+The instructions to set up pprof are available here: [https://github.com/google/pprof](https://github.com/google/pprof) 
+
+
 ### Development
 You can build the image locally using the Dockerfile included.
 
