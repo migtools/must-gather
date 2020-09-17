@@ -1,19 +1,21 @@
 #!/bin/bash
-
+source pwait
+max_parallelism=10
 
 # Cluster passed in from main gather
 cluster=$1
 namespaces=$2
 
-# Collect all Pod logs from last 3 days (72 hours) from namespaces where MTC is installed
+# Collect all Pod logs from namespaces where MTC is installed
 for ns in ${namespaces[@]}; do
   for pod in $(/usr/bin/oc get pods --no-headers --namespace $ns | awk '{print $1}'); do
     object_collection_path="/must-gather/${cluster}/namespaces/${ns}/logs/${pod}"
     mkdir -p ${object_collection_path}
     echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting Pod logs..."
-    /usr/bin/oc logs --all-containers --namespace ${ns} ${pod} > "${object_collection_path}/current.log" &
+    /usr/bin/oc logs --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/current.log" &
     echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting previous Pod logs..."
-    /usr/bin/oc logs --previous --all-containers --namespace ${ns} ${pod} > "${object_collection_path}/previous.log" & 
+    /usr/bin/oc logs --previous --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/previous.log" & 
+    pwait $max_parallelism
   done
 
   for kind in backup restore; do
@@ -25,9 +27,10 @@ for ns in ${namespaces[@]}; do
     done
     for resource in ${resources[@]}; do
       echo "[cluster=${cluster}][ns=${ns}] Gathering 'velero ${kind} logs ${resource}'"
-      oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero ${kind} logs $resource --timeout=30s" > "${object_collection_path}/$resource-${kind}.log" &
+      oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero ${kind} logs $resource --timeout=30s" &> "${object_collection_path}/$resource-${kind}.log" &
       echo "[cluster=${cluster}][ns=${ns}] Gathering 'velero ${kind} describe ${resource}'"
-      oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero ${kind} describe $resource --details" > "${object_collection_path}/$resource-${kind}-describe.log" &
+      oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero ${kind} describe $resource --details" &> "${object_collection_path}/$resource-${kind}-describe.log" &
+      pwait $max_parallelism
     done
   done
 done

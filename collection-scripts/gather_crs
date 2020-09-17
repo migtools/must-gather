@@ -1,4 +1,6 @@
 #!/bin/bash
+source pwait
+max_parallelism=10
 
 # Cluster passed in from main gather
 cluster=$1
@@ -29,12 +31,13 @@ for resource in ${resources[@]}; do
     if [ -z "${ocproject}" ]|[ "${ocproject}" == "<none>" ]; then
       object_collection_path=must-gather/${cluster}/cluster-scoped-resources/${resource}
       mkdir -p ${object_collection_path}
-      /usr/bin/oc get ${resource} -o yaml ${ocobject} > ${object_collection_path}/${ocobject}.yaml &
+      /usr/bin/oc get ${resource} -o yaml ${ocobject} &> ${object_collection_path}/${ocobject}.yaml &
     else
       object_collection_path=must-gather/${cluster}/namespaces/${ocproject}/crs/${resource}
       mkdir -p ${object_collection_path}
-      /usr/bin/oc get ${resource} -n ${ocproject} -o yaml ${ocobject} > ${object_collection_path}/${ocobject}.yaml & 
+      /usr/bin/oc get ${resource} -n ${ocproject} -o yaml ${ocobject} &> ${object_collection_path}/${ocobject}.yaml & 
     fi
+    pwait $max_parallelism
   done
 done
 
