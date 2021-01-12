@@ -39,7 +39,7 @@ for ns in ${namespaces[@]}; do
     pod=$(oc get podvolumerestore $pvr --namespace $ns -o jsonpath='{.status.resticPod}')
     migplan=$(oc get restore $restore -o jsonpath='{.metadata.labels.migration\.openshift\.io/migplan-name}' --namespace $ns)
     migmigration=$(oc get restore $restore -o jsonpath='{.metadata.labels.migration\.openshift\.io/migmigration-name}' --namespace $ns)
-    object_collection_path="must-gather/${migplan}/${migmigration}/${restore}/${pvr}"
+    object_collection_path="/must-gather/${migplan}/${migmigration}/${restore}/${pvr}"
     mkdir -p ${object_collection_path}
     echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting Pod logs..."
     oc logs --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/current.log" &
@@ -53,7 +53,7 @@ for ns in ${namespaces[@]}; do
     node=$(oc get podvolumebackup $pvb --namespace $ns -o jsonpath='{.spec.node}')
     migplan=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migplan-name}' --namespace $ns)
     migmigration=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migmigration-name}' --namespace $ns)
-    object_collection_path="must-gather/${migplan}/${migmigration}/${backup}/${pvb}"
+    object_collection_path="/must-gather/${migplan}/${migmigration}/${backup}/${pvb}"
     mkdir -p ${object_collection_path}
     for pod in $(oc get pods -o wide --field-selector spec.nodeName=${node} --selector name=restic --no-headers --namespace $ns | awk '{print $1}'); do
       echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting Pod logs..."
