@@ -33,6 +33,36 @@ for ns in ${namespaces[@]}; do
       pwait $max_parallelism
     done
   done
+
+  for pvr in $(oc get podvolumerestore --namespace $ns --no-headers | awk '{print $1}'); do
+    restore=$(oc get podvolumerestore $pvr --namespace $ns -o jsonpath='{.metadata.labels.velero\.io/restore-name}')
+    pod=$(oc get podvolumerestore $pvr --namespace $ns -o jsonpath='{.status.resticPod}')
+    migplan=$(oc get restore $restore -o jsonpath='{.metadata.labels.migration\.openshift\.io/migplan-name}' --namespace $ns)
+    migmigration=$(oc get restore $restore -o jsonpath='{.metadata.labels.migration\.openshift\.io/migmigration-name}' --namespace $ns)
+    object_collection_path="must-gather/${migplan}/${migmigration}/${restore}/${pvr}"
+    mkdir -p ${object_collection_path}
+    echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting Pod logs..."
+    oc logs --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/current.log" &
+    echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting previous Pod logs..."
+    oc logs --previous --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/previous.log" & 
+    pwait $max_parallelism
+  done
+
+  for pvb in $(oc get podvolumebackup --namespace $ns --no-headers | awk '{print $1}'); do
+    backup=$(oc get podvolumebackup $pvb --namespace $ns -o jsonpath='{.spec.tags.backup}')
+    node=$(oc get podvolumebackup $pvb --namespace $ns -o jsonpath='{.spec.node}')
+    migplan=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migplan-name}' --namespace $ns)
+    migmigration=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migmigration-name}' --namespace $ns)
+    object_collection_path="must-gather/${migplan}/${migmigration}/${backup}/${pvb}"
+    mkdir -p ${object_collection_path}
+    for pod in $(oc get pods -o wide --field-selector spec.nodeName=${node} --selector name=restic --no-headers --namespace $ns | awk '{print $1}'); do
+      echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting Pod logs..."
+      oc logs --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/current.log" &
+      echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting previous Pod logs..."
+      oc logs --previous --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/previous.log" & 
+      pwait $max_parallelism
+    done
+  done
 done
 
 wait
