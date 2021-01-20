@@ -47,13 +47,11 @@ done
 
 for ns in ${namespaces[@]}; do
   for migplan in $(oc get migplan --namespace ${ns} --no-headers | awk '{print $1}'); do
-    echo ${migplan}
     mkdir -p "/must-gather/migplan-${migplan}"
     oc get migplan ${migplan} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/${migplan}.yml"
   done
 
   for migmigration in $(oc get migmigration --namespace ${ns} --no-headers | awk '{print $1}'); do
-    echo ${migmigration}
     migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
     oc get migmigration ${migmigration} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/migmigration-${migmigration}/migmigration-${migmigration}.yml"
   done
