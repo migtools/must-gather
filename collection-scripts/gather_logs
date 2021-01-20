@@ -18,34 +18,6 @@ for ns in ${namespaces[@]}; do
     pwait $max_parallelism
   done
 
-  for kind in backup restore; do
-    object_collection_path="/must-gather/${cluster}/namespaces/${ns}/logs/velero-${kind}-logs"
-    mkdir -p ${object_collection_path}
-    export resources=()
-    for i in $(oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero get ${kind}s | grep -v NAME | awk '{ print \$1 }'" | tr -d '\r'); do
-      resources+=($i)
-    done
-    for resource in ${resources[@]}; do
-      echo "[cluster=${cluster}][ns=${ns}] Gathering 'velero ${kind} logs ${resource}'"
-      oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero ${kind} logs $resource --timeout=30s" &> "${object_collection_path}/$resource-${kind}.log" &
-      echo "[cluster=${cluster}][ns=${ns}] Gathering 'velero ${kind} describe ${resource}'"
-      oc -n ${ns} exec $(oc -n ${ns} get po -l component=velero -o custom-columns=name:.metadata.name --no-headers) -- /bin/bash -c "/velero ${kind} describe $resource --details" &> "${object_collection_path}/$resource-${kind}-describe.log" &
-      pwait $max_parallelism
-    done
-  done
-
-  for migplan in $(oc get migplan --namespace ${ns} --no-headers | awk '{print $1}'); do
-    echo ${migplan}
-    mkdir -p "/must-gather/migplan-${migplan}"
-    oc get migplan ${migplan} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/${migplan}.yml"
-  done
-
-  for migmigration in $(oc get migmigration --namespace ${ns} --no-headers | awk '{print $1}'); do
-    echo ${migmigration}
-    migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
-    oc get migmigration ${migmigration} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/migmigration-${migmigration}/migmigration-${migmigration}.yml"
-  done
-
   for backup in $(oc get backup --namespace ${ns} --no-headers | awk '{print $1}'); do
     migplan=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migplan-name}' --namespace $ns)
     migmigration=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migmigration-name}' --namespace $ns)
@@ -53,7 +25,6 @@ for ns in ${namespaces[@]}; do
     velero describe backup ${backup} --namespace ${ns} &> "/must-gather/migplan-${migplan}/migmigration-${migmigration}/backup-${backup}/backup-describe-${backup}.txt"
     velero backup logs ${backup} --namespace ${ns} &> "/must-gather/migplan-${migplan}/migmigration-${migmigration}/backup-${backup}/backup-${backup}.log"   
   done
-
 
   for restore in $(oc get restore --namespace ${ns} --no-headers | awk '{print $1}'); do
     migplan=$(oc get restore $restore -o jsonpath='{.metadata.labels.migration\.openshift\.io/migplan-name}' --namespace $ns)
