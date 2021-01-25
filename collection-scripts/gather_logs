@@ -62,7 +62,7 @@ for ns in ${namespaces[@]}; do
     migmigration=$(oc get backup $backup -o jsonpath='{.metadata.labels.migration\.openshift\.io/migmigration-name}' --namespace $ns)
     object_collection_path="/must-gather/migplan-${migplan}/migmigration-${migmigration}/backup-${backup}/pvb-${pvb}"
     mkdir -p ${object_collection_path}
-    oc describe podvolumebackup ${pvb} --namespace ${ns} &> "${object_collection_path}/pvb-describe-$pvb}.txt" &
+    oc describe podvolumebackup ${pvb} --namespace ${ns} &> "${object_collection_path}/pvb-describe-${pvb}.txt" &
     for pod in $(oc get pods -o wide --field-selector spec.nodeName=${node} --selector name=restic --no-headers --namespace $ns | awk '{print $1}'); do
       echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting Pod logs..."
       oc logs --all-containers --namespace ${ns} ${pod} &> "${object_collection_path}/current.log" &
