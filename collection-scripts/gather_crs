@@ -58,5 +58,33 @@ for ns in ${namespaces[@]}; do
     oc get migmigration ${migmigration} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/migmigration-${migmigration}/migmigration-${migmigration}.yml" &
     pwait $max_parallelism
   done
+
+  for dvm in $(oc get dvm --namespace ${ns} --no-headers | awk '{print $1}'); do
+    migmigration=$(oc get dvm ${dvm} --namespace ${ns} -o jsonpath='{.metadata.ownerReferences[0].name}')
+    migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
+    object_collection_path="/must-gather/migplan-${migplan}/migmigration-${migmigration}/dvm-${dvm}"
+    mkdir -p ${object_collection_path}
+    oc get dvm ${dvm} -o yaml --namespace ${ns} &> ${object_collection_path}/dvm-${dvm}.yml &
+    uid=$(oc get dvm ${dvm} --namespace ${ns} -o jsonpath='{.metadata.uid}')
+    for dvmp in $(oc get dvmp --namespace ${ns} --selector directvolumemigration=${uid} --no-headers | awk '{print $1}'); do
+      oc get dvmp ${dvmp} -o yaml --namespace ${ns} &> ${object_collection_path}/dvmp-${dvmp}.yml &
+      pwait $max_parallelism
+    done
+    pwait $max_parallelism
+  done
+
+  for dim in $(oc get dim --namespace ${ns} --no-headers | awk '{print $1}'); do
+    migmigration=$(oc get dim ${dim} --namespace ${ns} -o jsonpath='{.metadata.ownerReferences[0].name}')
+    migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
+    object_collection_path="/must-gather/migplan-${migplan}/migmigration-${migmigration}/dim-${dim}"
+    mkdir -p ${object_collection_path}
+    oc get dim ${dim} -o yaml --namespace ${ns} &> ${object_collection_path}/dim-${dim}.yml &
+    uid=$(oc get dim ${dim} --namespace ${ns} -o jsonpath='{.metadata.uid}')
+    for dism in $(oc get dism --namespace ${ns} --selector directimagemigration=${uid} --no-headers | awk '{print $1}'); do
+      oc get dism ${dism} -o yaml --namespace ${ns} &> ${object_collection_path}/dism-${dism}.yml &
+      pwait $max_parallelism
+    done
+    pwait $max_parallelism
+  done
 done
 wait
