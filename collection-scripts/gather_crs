@@ -33,7 +33,7 @@ for resource in ${resources[@]}; do
       mkdir -p ${object_collection_path}
       /usr/bin/oc get ${resource} -o yaml ${ocobject} &> ${object_collection_path}/${ocobject}.yaml &
     else
-      skip=("migmigrations.migration.openshift.io" "migplans.migration.openshift.io")
+      skip=("migmigrations.migration.openshift.io" "migplans.migration.openshift.io" "directimagemigrations.migration.openshift.io" "directimagestreammigrations.migration.openshift.io" "directvolumemigrations.migration.openshift.io" "directvolumemigrationprogresses.migration.openshift.io")
       if [[ ${skip[*]} =~ "${resource}" ]]; then
         continue
       fi
@@ -47,22 +47,22 @@ done
 
 for ns in ${namespaces[@]}; do
   for migplan in $(oc get migplan --namespace ${ns} --no-headers | awk '{print $1}'); do
-    mkdir -p "/must-gather/migplan-${migplan}"
-    oc get migplan ${migplan} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/${migplan}.yml" &
+    mkdir -p "/must-gather/migplans/migplan-${migplan}"
+    oc get migplan ${migplan} -o yaml --namespace ${ns} &> "/must-gather/migplans/migplan-${migplan}/${migplan}.yml" &
     pwait $max_parallelism
   done
 
   for migmigration in $(oc get migmigration --namespace ${ns} --no-headers | awk '{print $1}'); do
     migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
-    mkdir -p "/must-gather/migplan-${migplan}/migmigration-${migmigration}"
-    oc get migmigration ${migmigration} -o yaml --namespace ${ns} &> "/must-gather/migplan-${migplan}/migmigration-${migmigration}/migmigration-${migmigration}.yml" &
+    mkdir -p "/must-gather/migplans/migplan-${migplan}/migmigration-${migmigration}"
+    oc get migmigration ${migmigration} -o yaml --namespace ${ns} &> "/must-gather/migplans/migplan-${migplan}/migmigration-${migmigration}/migmigration-${migmigration}.yml" &
     pwait $max_parallelism
   done
 
   for dvm in $(oc get dvm --namespace ${ns} --no-headers | awk '{print $1}'); do
     migmigration=$(oc get dvm ${dvm} --namespace ${ns} -o jsonpath='{.metadata.ownerReferences[0].name}')
     migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
-    object_collection_path="/must-gather/migplan-${migplan}/migmigration-${migmigration}/dvm-${dvm}"
+    object_collection_path="/must-gather/migplans/migplan-${migplan}/migmigration-${migmigration}/dvm-${dvm}"
     mkdir -p ${object_collection_path}
     oc get dvm ${dvm} -o yaml --namespace ${ns} &> ${object_collection_path}/dvm-${dvm}.yml &
     uid=$(oc get dvm ${dvm} --namespace ${ns} -o jsonpath='{.metadata.uid}')
@@ -76,7 +76,7 @@ for ns in ${namespaces[@]}; do
   for dim in $(oc get dim --namespace ${ns} --no-headers | awk '{print $1}'); do
     migmigration=$(oc get dim ${dim} --namespace ${ns} -o jsonpath='{.metadata.ownerReferences[0].name}')
     migplan=$(oc get migmigration ${migmigration} --namespace ${ns} -o jsonpath='{.spec.migPlanRef.name}')
-    object_collection_path="/must-gather/migplan-${migplan}/migmigration-${migmigration}/dim-${dim}"
+    object_collection_path="/must-gather/migplans/migplan-${migplan}/migmigration-${migmigration}/dim-${dim}"
     mkdir -p ${object_collection_path}
     oc get dim ${dim} -o yaml --namespace ${ns} &> ${object_collection_path}/dim-${dim}.yml &
     uid=$(oc get dim ${dim} --namespace ${ns} -o jsonpath='{.metadata.uid}')
