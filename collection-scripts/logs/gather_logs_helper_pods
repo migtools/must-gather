@@ -1,0 +1,31 @@
+#!/bin/bash
+source pwait
+
+# Cluster passed in from gather_logs
+cluster=$1
+namespaces=$2
+logs_since=$3
+max_parallelism=$4
+
+export IFS=$'\n'
+
+for ns in $(/usr/bin/oc get pods --no-headers -A -l app.kubernetes.io/part-of=openshift-migration | awk '{print $1}' | sort -u); do
+    if echo $namespaces | grep -q -w $ns; then
+        continue
+    fi
+    
+    for pod in $(/usr/bin/oc get pods --no-headers -n ${ns} -l app.kubernetes.io/part-of=openshift-migration | awk '{print $1}'); do
+        object_collection_path="/must-gather/clusters/${cluster}/namespaces/${ns}/logs/${pod}"
+        mkdir -p ${object_collection_path}
+
+        containers="--all-containers"
+
+        echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting helper Pod logs..."
+        /usr/bin/oc logs ${containers} --namespace ${ns} ${pod} --since ${logs_since} &> "${object_collection_path}/current.log" &
+        echo "[cluster=${cluster}][ns=${ns}][pod=${pod}] Collecting previous helper Pod logs..."
+        /usr/bin/oc logs --previous ${containers} --namespace ${ns} ${pod} --since ${logs_since} &> "${object_collection_path}/previous.log" & 
+        pwait $max_parallelism
+    done
+done
+
+wait

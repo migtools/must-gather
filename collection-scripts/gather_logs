@@ -10,6 +10,8 @@ logs_since=$3
 base_path="/must-gather/migplans"
 mkdir -p ${base_path}
 
+gather_logs_helper_pods ${cluster} ${namespaces} ${logs_since} ${max_parallelism} &
+
 # Collect all Pod logs from namespaces where MTC is installed
 for ns in ${namespaces[@]}; do
 
