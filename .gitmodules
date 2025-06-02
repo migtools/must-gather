@@ -1,0 +1,4 @@
+[submodule "pprof"]
+	path = pprof
+	url = https://github.com/migtools/pprof
+	branch = konveyor-dev
