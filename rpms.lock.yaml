@@ -303,13 +303,13 @@ arches:
     size: 37636
     sourcerpm: libfontenc-1.1.3-8.el8.src.rpm
     url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/Packages/l/libfontenc-1.1.3-8.el8.x86_64.rpm
-  - checksum: sha256:69747333b4f689bf00e5ae3153449d30773f09bfca06ed0bbd9509b98222a766
-    evr: 9.27-16.el8_10
+  - checksum: sha256:ecb0596302cdfba3d6a4b4b5eea904275a7eb9904adcf871a67e14c87ebf259f
+    evr: 9.27-17.el8_10
     name: libgs
     repoid: rhel-8-for-x86_64-appstream-rpms
-    size: 3213584
-    sourcerpm: ghostscript-9.27-16.el8_10.src.rpm
-    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/Packages/l/libgs-9.27-16.el8_10.x86_64.rpm
+    size: 3213700
+    sourcerpm: ghostscript-9.27-17.el8_10.src.rpm
+    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/Packages/l/libgs-9.27-17.el8_10.x86_64.rpm
   - checksum: sha256:3447f8055b584ad4c36f4282619bb39d1daf3d167957a48953e8f136e6839b11
     evr: 1.34-5.el8
     name: libidn
@@ -366,13 +366,13 @@ arches:
     size: 195016
     sourcerpm: libtiff-4.0.9-34.el8_10.src.rpm
     url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/Packages/l/libtiff-4.0.9-34.el8_10.x86_64.rpm
-  - checksum: sha256:e30e48384630f9c997cae4a5ab718ea91f426832e06b71db4da0a7d16cfcf600
-    evr: 1.0.0-9.el8_9.1
+  - checksum: sha256:071e542ee89375610b9a33c6fe03b5ef6dfbe75beb445662491216ebb262a55d
+    evr: 1.0.0-11.el8_10
     name: libwebp
     repoid: rhel-8-for-x86_64-appstream-rpms
-    size: 280472
-    sourcerpm: libwebp-1.0.0-9.el8_9.1.src.rpm
-    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/Packages/l/libwebp-1.0.0-9.el8_9.1.x86_64.rpm
+    size: 280588
+    sourcerpm: libwebp-1.0.0-11.el8_10.src.rpm
+    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/Packages/l/libwebp-1.0.0-11.el8_10.x86_64.rpm
   - checksum: sha256:39e6bc1e8101e536066554702d5d6b25f8cad359fb5e02ac598cfdad56eafb6d
     evr: 1.13.1-1.el8
     name: libxcb
@@ -646,13 +646,13 @@ arches:
     size: 15628
     sourcerpm: pkgconf-1.4.2-1.el8.src.rpm
     url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/Packages/p/pkgconf-pkg-config-1.4.2-1.el8.x86_64.rpm
-  - checksum: sha256:c65fc8397e47b5c9a3e3ca8b1aca7136a1534ecbfb76884bdc0dde075e1f990b
-    evr: 3.1.3-21.el8_10
+  - checksum: sha256:3fd7508ce30e4b78b5785bb2dbb5291c3553aa30f4e6023daeb4e9ebb1e51ab8
+    evr: 3.1.3-23.el8_10
     name: rsync
     repoid: rhel-8-for-x86_64-baseos-rpms
-    size: 420856
-    sourcerpm: rsync-3.1.3-21.el8_10.src.rpm
-    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/Packages/r/rsync-3.1.3-21.el8_10.x86_64.rpm
+    size: 422216
+    sourcerpm: rsync-3.1.3-23.el8_10.src.rpm
+    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/Packages/r/rsync-3.1.3-23.el8_10.x86_64.rpm
   - checksum: sha256:8fef82a0871742672010e7b990d7c67a6bdfc47eb58eef85f963b8abffd9c545
     evr: 1.9-4.el8
     name: shared-mime-info
@@ -758,12 +758,12 @@ arches:
     repoid: rhel-8-for-x86_64-baseos-source-rpms
     size: 300577
     url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/source/SRPMS/Packages/p/pkgconf-1.4.2-1.el8.src.rpm
-  - checksum: sha256:8dd8cd91786a1a30835e61c75f2f56b0449680583cff5be4e396fd82bfaab7c1
-    evr: 3.1.3-21.el8_10
+  - checksum: sha256:f21aa8abbea6df3016d82d6db3e8b9abce2a068de40373d5ad6fa0926f0ca24a
+    evr: 3.1.3-23.el8_10
     name: rsync
     repoid: rhel-8-for-x86_64-baseos-source-rpms
-    size: 1149684
-    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/source/SRPMS/Packages/r/rsync-3.1.3-21.el8_10.src.rpm
+    size: 1154148
+    url: https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/source/SRPMS/Packages/r/rsync-3.1.3-23.el8_10.src.rpm
   - checksum: sha256:b070925e9e0d4824b3c0ed86bad64f77daf954ec359260789fe8f8150ef402c6
     evr: 1.9-4.el8
     name: shared-mime-info
