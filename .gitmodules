@@ -1,0 +1,4 @@
+[submodule "pprof"]
+	path = pprof
+	url = https://github.com/migtools/pprof.git
+	branch = release-1.8
