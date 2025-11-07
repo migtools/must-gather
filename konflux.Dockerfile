@@ -22,3 +22,10 @@ COPY --from=builder /workspace/collection-scripts/logs/* /usr/bin
 COPY --from=builder /workspace/collection-scripts/time_window_gather /usr/bin
 COPY LICENSE /licenses/
 ENTRYPOINT /usr/bin/gather
+
+LABEL \
+        "io.k8s.description"="Migration Toolkit for Containers Must Gather" \
+        "io.k8s.display-name"="Migration Toolkit for Containers" \
+        "io.openshift.tags"="migration" \
+        "summary"="Migration Toolkit for Containers Must Gather" \
+        "io.openshift.maintainer.project"="MIG"
